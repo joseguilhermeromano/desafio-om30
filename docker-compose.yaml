@@ -1,20 +1,24 @@
 version: '3'
 services:
-  web:
+  backend:
     build:
       args:
         user: www-data
         uid: 1000
       context: ./docker/php
-    container_name: web
+    container_name: backend
     environment:
       XDEBUG_MODE: develop,coverage,debug,profile
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:
-      - ./app:/var/www/
+      - ./app/backend:/var/www
       - ./docker/php/config/timezone.ini:/usr/local/etc/php/conf.d/timezone.ini
       - ./docker/php/config/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./docker/php/php-fpm.d:/usr/local/etc/php-fpm.d
+      - ./docker/php/config/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - '9004:9004'
     networks:
       - netLocal
     depends_on:
@@ -39,13 +43,14 @@ services:
     restart: always
     ports:
       - '80:80'
+      - '8000:8000'
     volumes:
       - './app:/var/www/'
       - './app/frontend/dist/spa:/usr/share/nginx/html'
       - './docker/nginx/sites:/etc/nginx/sites-available'
       - './docker/nginx/nginx.conf:/etc/nginx/nginx.conf'
     depends_on:
-      - web
+      - backend
     networks:
       - netLocal
 
