@@ -1,0 +1,88 @@
+version: '3'
+services:
+  web:
+    build:
+      args:
+        user: www-data
+        uid: 1000
+      context: ./docker/php
+    container_name: web
+    environment:
+      XDEBUG_MODE: develop,coverage,debug,profile
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./app:/var/www/
+      - ./docker/php/config/timezone.ini:/usr/local/etc/php/conf.d/timezone.ini
+      - ./docker/php/config/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    networks:
+      - netLocal
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: ./app/frontend
+      target: develop
+    restart: always
+    ports:
+      - '8080:8080'
+    volumes:
+      - './app/frontend:/app'
+    depends_on:
+      - nginx
+    command: /bin/sh -c "yarn && quasar dev"
+
+  nginx:
+    build: ./docker/nginx
+    restart: always
+    ports:
+      - '80:80'
+    volumes:
+      - './app:/var/www/'
+      - './app/frontend/dist/spa:/usr/share/nginx/html'
+      - './docker/nginx/sites:/etc/nginx/sites-available'
+      - './docker/nginx/nginx.conf:/etc/nginx/nginx.conf'
+    depends_on:
+      - web
+    networks:
+      - netLocal
+
+  postgres:
+    image: postgres:14.3-alpine
+    restart: always
+    networks:
+      - netLocal
+    volumes:
+      - POSTGRES_VOLUME:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: database
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - netLocal
+    ports:
+      - 6379:6379
+
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - netLocal
+    ports:
+      - 8081:8080
+
+volumes:
+  POSTGRES_VOLUME:
+    driver: local
+
+networks:
+  netLocal:
+    driver: bridge
