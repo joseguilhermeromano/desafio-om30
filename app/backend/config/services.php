@@ -31,8 +31,4 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'dns' => [
-        'server' => env('DNS_SERVER', '127.0.0.1:5353'),
-    ],
-
 ];

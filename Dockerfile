@@ -42,7 +42,11 @@ RUN docker-php-ext-install pdo_pgsql pgsql session xml bcmath opcache curl
 
 RUN docker-php-ext-install zip simplexml pcntl gd fileinfo
 
+WORKDIR /var/www
+
 COPY --chown=www-data:www-data --chmod=775 ./app/backend .
+
+RUN chmod -R 777 /var/www/storage
 
 EXPOSE 9004
 
@@ -53,13 +57,6 @@ EXPOSE 9004
 RUN mkdir -p /var/log/php
 RUN chown www-data:adm /var/log/php
 RUN chmod 755 /var/log/php
-WORKDIR /var/log
-
-#################################
-##      WORKSPACE DEFAULT      ##
-#################################
-
-WORKDIR /var/www
 
 #################################
 ##           COMPOSER          ##
