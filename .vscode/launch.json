@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Listen for XDebug via Line Command (PHPUnit)",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "pathMappings": {
+        "/var/www/public": "${workspaceRoot}/app/backend/public",
+        "/var/www/app": "${workspaceRoot}/app/backend/app",
+        "/var/www/vendor": "${workspaceRoot}/app/backend/vendor",
+        "/var/www": "${workspaceRoot}/app/backend"
+      },
+      "stopOnEntry": true,
+      "hostname": "0.0.0.0",
+      "externalConsole": false,
+      "runtimeExecutable": "/usr/local/sbin/php-fpm",
+      "xdebugSettings": {
+          "max_children": 10000,
+          "max_data": 10000,
+          "show_hidden": 1,
+          "breakpoint_details": 1
+      },
+      "log": true,
+    },
+  ]
+}
