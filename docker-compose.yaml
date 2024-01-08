@@ -1,64 +1,5 @@
 version: '3'
 services:
-  # backend:
-  #   build:
-  #     args:
-  #       user: www-data
-  #       uid: 10001
-  #     context: .
-  #   container_name: backend_om30
-  #   environment:
-  #     XDEBUG_MODE: debug
-  #     XDEBUG_SESSION: VSCODE
-  #   extra_hosts:
-  #     - 'postgres_om30:host-gateway'
-  #     - 'redis_om30:host-gateway'
-  #     - 'www.viacep.com.br:165.227.126.241'
-  #     - 'host.docker.internal:host-gateway'
-  #   volumes:
-  #     - ./app/backend:/var/www
-  #     - ./docker/php/config/timezone.ini:/usr/local/etc/php/conf.d/timezone.ini
-  #     - ./docker/php/php-fpm.d:/usr/local/etc/php-fpm.d
-  #     - ./docker/php/config/php.ini:/usr/local/etc/php/php.ini
-  #     - ./app/frontend/dist/spa:/usr/share/nginx/html
-  #     - ./docker/nginx/sites:/etc/nginx/sites-available
-  #     - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
-  #     - ./docker/php/config/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-  #     - ./docker/php/config/resolv.conf:/etc/resolv.conf
-  #     # - ./docker/php/config/dnsmasq.conf:/etc/dnsmasq.d/dnsmasq.conf
-  #   ports:
-  #     - '80:80'
-  #     - '8000:8000'
-  #   dns:
-  #     - '8.8.8.8'
-  #   networks:
-  #     - netLocal
-  #   depends_on:
-  #     - postgres
-  #     - redis
-
-  nginx:
-    image: nginx:1.19.6
-    restart: always
-    container_name: nginx_om30
-    networks:
-      - netLocal
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
-    volumes:
-      - ./app/backend:/var/www:ro
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./docker/nginx/sites/backend.conf:/etc/nginx/conf.d/default.conf
-      - ./app/frontend/dist/spa:/usr/share/nginx/html
-      - ./backend_app:/backend_app
-    ports:
-      - 80:80
-      - 8000:8000
-    links:
-    - backend
-    dns:
-    - 8.8.8.8
-
   backend:
     build:
       args:
@@ -80,6 +21,12 @@ services:
       - ./docker/php/config/php.ini:/usr/local/etc/php/php.ini
       - ./docker/php/config/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - ./docker/php/php-fpm.d:/usr/local/etc/php-fpm.d
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/sites/backend.conf:/etc/nginx/conf.d/default.conf
+      - ./app/frontend/dist/spa:/usr/share/nginx/html
+    ports:
+      - 80:80
+      - 8000:8000
     networks:
       - netLocal
     depends_on:
@@ -99,7 +46,7 @@ services:
     networks:
       - netLocal
     depends_on:
-      - nginx
+      - backend
     command: /bin/sh -c "yarn && quasar dev"
 
   postgres:
